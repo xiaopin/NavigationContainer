@@ -15,30 +15,35 @@
 
 @property (nonatomic, weak) UIViewController *contentViewController;
 + (instancetype)containerViewControllerWithViewController:(UIViewController *)viewController;
+- (instancetype)initWithViewController:(UIViewController *)viewController;
 
 @end
 
 @implementation XPContainerViewController
 
 + (instancetype)containerViewControllerWithViewController:(UIViewController *)viewController {
-    if (viewController.parentViewController) {
-        [viewController willMoveToParentViewController:nil];
-        [viewController removeFromParentViewController];
+    return [[self alloc] initWithViewController:viewController];
+}
+
+- (instancetype)initWithViewController:(UIViewController *)viewController {
+    if (self = [super init]) {
+        if (viewController.parentViewController) {
+            [viewController willMoveToParentViewController:nil];
+            [viewController removeFromParentViewController];
+        }
+        
+        Class cls = [viewController xp_navigationControllerClass];
+        NSAssert(![cls isKindOfClass:UINavigationController.class], @"`-xp_navigationControllerClass` must return UINavigationController or its subclasses.");
+        UINavigationController *nav = [[cls alloc] initWithRootViewController:viewController];
+        nav.interactivePopGestureRecognizer.enabled = NO;
+        
+        self.contentViewController = viewController;
+        self.hidesBottomBarWhenPushed = viewController.hidesBottomBarWhenPushed;
+        [self addChildViewController:nav];
+        [self.view addSubview:nav.view];
+        [nav didMoveToParentViewController:self];
     }
-    
-    Class cls = [viewController xp_navigationControllerClass];
-    NSAssert(![cls isKindOfClass:UINavigationController.class], @"`-xp_navigationControllerClass` must return UINavigationController or its subclasses.");
-    UINavigationController *nav = [[cls alloc] initWithRootViewController:viewController];
-    nav.interactivePopGestureRecognizer.enabled = NO;
-    
-    XPContainerViewController *containerViewController = [[XPContainerViewController alloc] init];
-    containerViewController.contentViewController = viewController;
-    containerViewController.hidesBottomBarWhenPushed = viewController.hidesBottomBarWhenPushed;
-    [containerViewController addChildViewController:nav];
-    [containerViewController.view addSubview:nav.view];
-    [nav didMoveToParentViewController:containerViewController];
-    
-    return containerViewController;
+    return self;
 }
 
 @end
@@ -82,12 +87,9 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
     return self;
 }
 
-- (instancetype)initWithCoder:(NSCoder *)aDecoder {
-    self = [super initWithCoder:aDecoder];
-    if (self) {
-        [self commonInit];
-    }
-    return self;
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    [self commonInit];
 }
 
 - (void)viewDidLoad {
@@ -132,12 +134,13 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
 #pragma mark Private
 
 - (void)commonInit {
+    // 注意: 需要先隐藏导航栏再设置控制器，否则在某些低版本系统下有问题
+    [self setNavigationBarHidden:YES animated:NO];
     UIViewController *topViewController = self.topViewController;
     if (topViewController) {
         UIViewController *wrapViewController = XPWrapViewController(topViewController);
         [super setViewControllers:@[wrapViewController] animated:NO];
     }
-    [self setNavigationBarHidden:YES animated:NO];
 }
 
 - (UIImage *)navigationBarBackIconImage {
