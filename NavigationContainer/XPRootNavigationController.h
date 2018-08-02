@@ -38,13 +38,13 @@
 /// 导航栏控制器
 @interface XPRootNavigationController : XPContainerNavigationController
 
-/// 返回按钮图标,默认`nil`
-@property (nonatomic, strong) IBInspectable UIImage *backIconImage;
-
 @end
 
 
 @interface UIViewController (XPNavigationContainer)
+
+/// 返回按钮图标, 默认`nil`
+@property (nonatomic, strong) IBInspectable UIImage *backIconImage;
 
 /**
  返回控制器的导航栏,默认`XPContainerNavigationController.class`

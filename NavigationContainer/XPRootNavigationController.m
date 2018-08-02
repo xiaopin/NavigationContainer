@@ -14,6 +14,8 @@
 @interface XPContainerViewController : UIViewController
 
 @property (nonatomic, weak) UIViewController *contentViewController;
+@property (nonatomic, weak) UINavigationController *containerNavigationController;
+
 + (instancetype)containerViewControllerWithViewController:(UIViewController *)viewController;
 - (instancetype)initWithViewController:(UIViewController *)viewController;
 
@@ -34,14 +36,15 @@
         
         Class cls = [viewController xp_navigationControllerClass];
         NSAssert(![cls isKindOfClass:UINavigationController.class], @"`-xp_navigationControllerClass` must return UINavigationController or its subclasses.");
-        UINavigationController *nav = [[cls alloc] initWithRootViewController:viewController];
-        nav.interactivePopGestureRecognizer.enabled = NO;
+        UINavigationController *navigationController = [[cls alloc] initWithRootViewController:viewController];
+        navigationController.interactivePopGestureRecognizer.enabled = NO;
         
         self.contentViewController = viewController;
+        self.containerNavigationController = navigationController;
         self.hidesBottomBarWhenPushed = viewController.hidesBottomBarWhenPushed;
-        [self addChildViewController:nav];
-        [self.view addSubview:nav.view];
-        [nav didMoveToParentViewController:self];
+        [self addChildViewController:navigationController];
+        [self.view addSubview:navigationController.view];
+        [navigationController didMoveToParentViewController:self];
     }
     return self;
 }
@@ -52,10 +55,10 @@
 #pragma mark - 全局函数
 
 /// 装包
-UIKIT_STATIC_INLINE UIViewController* XPWrapViewController(UIViewController *vc)
+UIKIT_STATIC_INLINE XPContainerViewController* XPWrapViewController(UIViewController *vc)
 {
     if ([vc isKindOfClass:XPContainerViewController.class]) {
-        return vc;
+        return (XPContainerViewController*)vc;
     }
     return [XPContainerViewController containerViewControllerWithViewController:vc];
 }
@@ -103,16 +106,24 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    XPContainerViewController *container = XPWrapViewController(viewController);
     if (self.viewControllers.count > 0) {
         // 返回按钮目前仅支持图片
-        UIImage *backImage = self.backIconImage ?: [self navigationBarBackIconImage];
+        UIImage *backImage = nil;
+        if (viewController.backIconImage) {
+            backImage = viewController.backIconImage;
+        } else if (container.containerNavigationController.backIconImage) {
+            backImage = container.containerNavigationController.backIconImage;
+        } else {
+            backImage = self.backIconImage ?: [self navigationBarBackIconImage];
+        }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
         UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithImage:backImage style:UIBarButtonItemStylePlain target:viewController action:@selector(xp_popViewController)];
 #pragma clang diagnostic pop
         viewController.navigationItem.leftBarButtonItem = backItem;
     }
-    [super pushViewController:XPWrapViewController(viewController) animated:animated];
+    [super pushViewController:container animated:animated];
     
     // pop手势
     self.interactivePopGestureRecognizer.delaysTouchesBegan = YES;
@@ -223,6 +234,14 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
 #else
     return [XPContainerNavigationController class];
 #endif
+}
+
+- (void)setBackIconImage:(UIImage *)backIconImage {
+    objc_setAssociatedObject(self, @selector(backIconImage), backIconImage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (UIImage *)backIconImage {
+    return objc_getAssociatedObject(self, _cmd);
 }
 
 - (XPRootNavigationController *)xp_rootNavigationController {
