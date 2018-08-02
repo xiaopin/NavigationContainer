@@ -128,10 +128,17 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
     // pop手势
     self.interactivePopGestureRecognizer.delaysTouchesBegan = YES;
     self.interactivePopGestureRecognizer.delegate = self;
-    self.interactivePopGestureRecognizer.enabled = (self.viewControllers.count > 1);
+    self.interactivePopGestureRecognizer.enabled = YES;
 }
 
 #pragma mark <UIGestureRecognizerDelegate>
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer == self.interactivePopGestureRecognizer) {
+        return (self.viewControllers.count > 1);
+    }
+    return YES;
+}
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
     return YES;
