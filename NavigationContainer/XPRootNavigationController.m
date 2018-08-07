@@ -10,6 +10,8 @@
 #import <objc/runtime.h>
 
 
+static char const kXPRootNavigationControllerKey = '\0';
+
 #pragma mark - 容器控制器
 @interface XPContainerViewController : UIViewController
 
@@ -129,6 +131,17 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
     self.interactivePopGestureRecognizer.delaysTouchesBegan = YES;
     self.interactivePopGestureRecognizer.delegate = self;
     self.interactivePopGestureRecognizer.enabled = YES;
+    
+    /**
+     * 保留一个`XPRootNavigationController`的弱引用
+     * 用于解决用户执行 pop 后立即 push 的使用场景
+     *
+     * 示例代码:
+     * UINavigationController *nav = self.navigationController;
+     * [nav popViewControllerAnimated:NO];
+     * [nav pushViewController:nil animated:YES];
+     */
+    objc_setAssociatedObject(container.containerNavigationController, &kXPRootNavigationControllerKey, self, OBJC_ASSOCIATION_ASSIGN);
 }
 
 #pragma mark <UIGestureRecognizerDelegate>
@@ -299,7 +312,9 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
     if (self.parentViewController && [self.parentViewController isKindOfClass:XPContainerViewController.class]) {
         XPContainerViewController *containerViewController = (XPContainerViewController *)self.parentViewController;
         XPRootNavigationController *rootNavigationController = (XPRootNavigationController *)containerViewController.navigationController;
-        return rootNavigationController;
+        // 如果用户执行了pop操作, 则此时`rootNavigationController`将为nil
+        // 将尝试从关联对象中取出`XPRootNavigationController`
+        return (rootNavigationController ?: objc_getAssociatedObject(self, &kXPRootNavigationControllerKey));
     }
     return nil;
 }
@@ -326,7 +341,8 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
 - (NSArray<UIViewController *> *)xp_popToViewController:(UIViewController *)viewController animated:(BOOL)animated {
     XPRootNavigationController *rootNavigationController = [self rootNavigationController];
     if (rootNavigationController) {
-        NSArray<UIViewController*> *array = [rootNavigationController popToViewController:viewController animated:animated];
+        XPContainerViewController *container = (XPContainerViewController*)viewController.navigationController.parentViewController;
+        NSArray<UIViewController*> *array = [rootNavigationController popToViewController:container animated:animated];
         NSMutableArray *viewControllers = [NSMutableArray array];
         for (UIViewController *vc in array) {
             [viewControllers addObject:XPUnwrapViewController(vc)];
