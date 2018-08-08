@@ -43,6 +43,7 @@ static char const kXPRootNavigationControllerKey = '\0';
         
         self.contentViewController = viewController;
         self.containerNavigationController = navigationController;
+        self.tabBarItem = viewController.tabBarItem;
         self.hidesBottomBarWhenPushed = viewController.hidesBottomBarWhenPushed;
         [self addChildViewController:navigationController];
         [self.view addSubview:navigationController.view];
