@@ -75,6 +75,17 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
     return vc;
 }
 
+/// 替换方法实现
+UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swizzledSelector) {
+    Method originalMethod = class_getInstanceMethod(class, originalSelector);
+    Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+    if (class_addMethod(class, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))) {
+        class_replaceMethod(class, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+    } else {
+        method_exchangeImplementations(originalMethod, swizzledMethod);
+    }
+}
+
 
 #pragma mark - 导航栏控制器
 
@@ -300,9 +311,10 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
                              ];
         
         for (NSString *str in actions) {
-            Method original = class_getInstanceMethod(self, NSSelectorFromString(str));
-            Method swizzled = class_getInstanceMethod(self, NSSelectorFromString([@"xp_" stringByAppendingString:str]));
-            method_exchangeImplementations(original, swizzled);
+            xp_swizzled(self, NSSelectorFromString(str), NSSelectorFromString([@"xp_" stringByAppendingString:str]));
+        }
+        if (UIDevice.currentDevice.systemVersion.doubleValue < 11.0) {
+            xp_swizzled(self, @selector(tabBarController), NSSelectorFromString(@"xp_tabBarController"));
         }
     });
 }
@@ -372,6 +384,16 @@ UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *v
         return [rootNavigationController viewControllers];
     }
     return [self xp_viewControllers];
+}
+
+- (UITabBarController *)xp_tabBarController {
+    if (self.parentViewController && [self.parentViewController isKindOfClass:XPContainerViewController.class]) {
+        if (self.viewControllers.count > 1 && self.topViewController.hidesBottomBarWhenPushed) {
+            // 解决滚动视图在iOS11以下版本中底部留白问题
+            return nil;
+        }
+    }
+    return [self xp_tabBarController];
 }
 
 @end
