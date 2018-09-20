@@ -307,14 +307,12 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
                              NSStringFromSelector(@selector(popViewControllerAnimated:)),
                              NSStringFromSelector(@selector(popToViewController:animated:)),
                              NSStringFromSelector(@selector(popToRootViewControllerAnimated:)),
-                             NSStringFromSelector(@selector(viewControllers))
+                             NSStringFromSelector(@selector(viewControllers)),
+                             NSStringFromSelector(@selector(tabBarController))
                              ];
         
         for (NSString *str in actions) {
             xp_swizzled(self, NSSelectorFromString(str), NSSelectorFromString([@"xp_" stringByAppendingString:str]));
-        }
-        if (UIDevice.currentDevice.systemVersion.doubleValue < 11.0) {
-            xp_swizzled(self, @selector(tabBarController), NSSelectorFromString(@"xp_tabBarController"));
         }
     });
 }
@@ -387,13 +385,18 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
 }
 
 - (UITabBarController *)xp_tabBarController {
+    UITabBarController *tabController = [self xp_tabBarController];
     if (self.parentViewController && [self.parentViewController isKindOfClass:XPContainerViewController.class]) {
         if (self.viewControllers.count > 1 && self.topViewController.hidesBottomBarWhenPushed) {
             // 解决滚动视图在iOS11以下版本中底部留白问题
             return nil;
         }
+        // Fix issue #4 https://github.com/xiaopin/NavigationContainer/issues/4
+        if (!tabController.tabBar.isTranslucent) {
+            return nil;
+        }
     }
-    return [self xp_tabBarController];
+    return tabController;
 }
 
 @end
