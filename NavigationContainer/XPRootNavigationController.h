@@ -31,11 +31,13 @@
 
 
 /// 仅限于内部使用
+NS_CLASS_AVAILABLE_IOS(8_0)
 @interface XPContainerNavigationController : UINavigationController
 @end
 
 
 /// 导航栏控制器
+NS_CLASS_AVAILABLE_IOS(8_0)
 @interface XPRootNavigationController : XPContainerNavigationController
 
 @end

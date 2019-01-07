@@ -47,6 +47,20 @@ static char const kXPRootNavigationControllerKey = '\0';
         self.hidesBottomBarWhenPushed = viewController.hidesBottomBarWhenPushed;
         [self addChildViewController:navigationController];
         [self.view addSubview:navigationController.view];
+        // Fix Issues #6: https://github.com/xiaopin/NavigationContainer/issues/6
+        navigationController.view.translatesAutoresizingMaskIntoConstraints = NO;
+        [NSLayoutConstraint activateConstraints:
+            [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[view]|"
+                                                    options:NSLayoutFormatDirectionLeadingToTrailing
+                                                    metrics:nil
+                                                      views:@{@"view": navigationController.view}]
+        ];
+        [NSLayoutConstraint activateConstraints:
+            [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[view]|"
+                                                    options:NSLayoutFormatDirectionLeadingToTrailing
+                                                    metrics:nil
+                                                      views:@{@"view": navigationController.view}]
+        ];
         [navigationController didMoveToParentViewController:self];
     }
     return self;
