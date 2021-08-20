@@ -266,6 +266,15 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
     return [NSArray arrayWithArray:vcs];
 }
 
+// Return modal view controller if it exists. Otherwise the top view controller.
+- (UIViewController *)visibleViewController {
+    UIViewController *vc = [super visibleViewController];
+    if (vc == self.topViewController) {
+        return XPUnwrapViewController(vc);
+    }
+    return vc;
+}
+
 @end
 
 
