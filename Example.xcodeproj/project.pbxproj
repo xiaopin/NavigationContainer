@@ -13,8 +13,11 @@
 		546DFCF32111DCED00491058 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 546DFCF22111DCED00491058 /* Assets.xcassets */; };
 		546DFCF62111DCED00491058 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 546DFCF42111DCED00491058 /* LaunchScreen.storyboard */; };
 		546DFCF92111DCED00491058 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 546DFCF82111DCED00491058 /* main.m */; };
-		546DFD022111DD6C00491058 /* XPRootNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 546DFD012111DD6C00491058 /* XPRootNavigationController.m */; };
 		546DFD052111DE0600491058 /* TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 546DFD042111DE0600491058 /* TableViewController.m */; };
+		B24E028C26DC815D00795455 /* XPRootNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028326DC815D00795455 /* XPRootNavigationController.m */; };
+		B24E028D26DC815D00795455 /* XPWrappingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028426DC815D00795455 /* XPWrappingViewController.m */; };
+		B24E028E26DC815D00795455 /* XPHelper+NavigationContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028926DC815D00795455 /* XPHelper+NavigationContainer.m */; };
+		B24E028F26DC815D00795455 /* UIViewController+XPNavigationContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028B26DC815D00795455 /* UIViewController+XPNavigationContainer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,10 +31,17 @@
 		546DFCF52111DCED00491058 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		546DFCF72111DCED00491058 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		546DFCF82111DCED00491058 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		546DFD002111DD6C00491058 /* XPRootNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPRootNavigationController.h; sourceTree = "<group>"; };
-		546DFD012111DD6C00491058 /* XPRootNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XPRootNavigationController.m; sourceTree = "<group>"; };
 		546DFD032111DE0600491058 /* TableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableViewController.h; sourceTree = "<group>"; };
 		546DFD042111DE0600491058 /* TableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableViewController.m; sourceTree = "<group>"; };
+		B24E028326DC815D00795455 /* XPRootNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XPRootNavigationController.m; sourceTree = "<group>"; };
+		B24E028426DC815D00795455 /* XPWrappingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XPWrappingViewController.m; sourceTree = "<group>"; };
+		B24E028526DC815D00795455 /* XPHelper+NavigationContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XPHelper+NavigationContainer.h"; sourceTree = "<group>"; };
+		B24E028626DC815D00795455 /* UIViewController+XPNavigationContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+XPNavigationContainer.h"; sourceTree = "<group>"; };
+		B24E028726DC815D00795455 /* XPWrappingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPWrappingViewController.h; sourceTree = "<group>"; };
+		B24E028826DC815D00795455 /* XPRootNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPRootNavigationController.h; sourceTree = "<group>"; };
+		B24E028926DC815D00795455 /* XPHelper+NavigationContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XPHelper+NavigationContainer.m"; sourceTree = "<group>"; };
+		B24E028A26DC815D00795455 /* XPNavigationContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPNavigationContainer.h; sourceTree = "<group>"; };
+		B24E028B26DC815D00795455 /* UIViewController+XPNavigationContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+XPNavigationContainer.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,7 +74,7 @@
 		546DFCE82111DCED00491058 /* Example */ = {
 			isa = PBXGroup;
 			children = (
-				546DFCFF2111DD6C00491058 /* NavigationContainer */,
+				B24E028226DC815D00795455 /* NavigationContainer */,
 				546DFCE92111DCED00491058 /* AppDelegate.h */,
 				546DFCEA2111DCED00491058 /* AppDelegate.m */,
 				546DFCEC2111DCED00491058 /* ViewController.h */,
@@ -80,11 +90,18 @@
 			path = Example;
 			sourceTree = "<group>";
 		};
-		546DFCFF2111DD6C00491058 /* NavigationContainer */ = {
+		B24E028226DC815D00795455 /* NavigationContainer */ = {
 			isa = PBXGroup;
 			children = (
-				546DFD002111DD6C00491058 /* XPRootNavigationController.h */,
-				546DFD012111DD6C00491058 /* XPRootNavigationController.m */,
+				B24E028A26DC815D00795455 /* XPNavigationContainer.h */,
+				B24E028626DC815D00795455 /* UIViewController+XPNavigationContainer.h */,
+				B24E028B26DC815D00795455 /* UIViewController+XPNavigationContainer.m */,
+				B24E028526DC815D00795455 /* XPHelper+NavigationContainer.h */,
+				B24E028926DC815D00795455 /* XPHelper+NavigationContainer.m */,
+				B24E028826DC815D00795455 /* XPRootNavigationController.h */,
+				B24E028326DC815D00795455 /* XPRootNavigationController.m */,
+				B24E028726DC815D00795455 /* XPWrappingViewController.h */,
+				B24E028426DC815D00795455 /* XPWrappingViewController.m */,
 			);
 			path = NavigationContainer;
 			sourceTree = SOURCE_ROOT;
@@ -163,7 +180,10 @@
 				546DFCF92111DCED00491058 /* main.m in Sources */,
 				546DFCEB2111DCED00491058 /* AppDelegate.m in Sources */,
 				546DFD052111DE0600491058 /* TableViewController.m in Sources */,
-				546DFD022111DD6C00491058 /* XPRootNavigationController.m in Sources */,
+				B24E028D26DC815D00795455 /* XPWrappingViewController.m in Sources */,
+				B24E028C26DC815D00795455 /* XPRootNavigationController.m in Sources */,
+				B24E028F26DC815D00795455 /* UIViewController+XPNavigationContainer.m in Sources */,
+				B24E028E26DC815D00795455 /* XPHelper+NavigationContainer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

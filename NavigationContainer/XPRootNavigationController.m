@@ -7,108 +7,20 @@
 //
 
 #import "XPRootNavigationController.h"
+#import "XPWrappingViewController.h"
+#import "XPHelper+NavigationContainer.h"
+#import "UIViewController+XPNavigationContainer.h"
 #import <objc/runtime.h>
 
+#define kBackIconCacheFileName  @"xpnc_backicon.png"
 
-static char const kXPRootNavigationControllerKey = '\0';
-
-#pragma mark - 容器控制器
-@interface XPContainerViewController : UIViewController
-
-@property (nonatomic, weak) UIViewController *contentViewController;
-@property (nonatomic, weak) UINavigationController *containerNavigationController;
-
-+ (instancetype)containerViewControllerWithViewController:(UIViewController *)viewController;
-- (instancetype)initWithViewController:(UIViewController *)viewController;
-
-@end
-
-@implementation XPContainerViewController
-
-+ (instancetype)containerViewControllerWithViewController:(UIViewController *)viewController {
-    return [[self alloc] initWithViewController:viewController];
-}
-
-- (instancetype)initWithViewController:(UIViewController *)viewController {
-    if (self = [super init]) {
-        if (viewController.parentViewController) {
-            [viewController willMoveToParentViewController:nil];
-            [viewController removeFromParentViewController];
-        }
-        
-        Class cls = [viewController xp_navigationControllerClass];
-        NSAssert(![cls isKindOfClass:UINavigationController.class], @"`-xp_navigationControllerClass` must return UINavigationController or its subclasses.");
-        UINavigationController *navigationController = [[cls alloc] initWithRootViewController:viewController];
-        navigationController.interactivePopGestureRecognizer.enabled = NO;
-        
-        self.contentViewController = viewController;
-        self.containerNavigationController = navigationController;
-        self.tabBarItem = viewController.tabBarItem;
-        self.hidesBottomBarWhenPushed = viewController.hidesBottomBarWhenPushed;
-        [self addChildViewController:navigationController];
-        [self.view addSubview:navigationController.view];
-        // Fix Issues #6: https://github.com/xiaopin/NavigationContainer/issues/6
-        navigationController.view.translatesAutoresizingMaskIntoConstraints = NO;
-        [NSLayoutConstraint activateConstraints:
-            [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[view]|"
-                                                    options:NSLayoutFormatDirectionLeadingToTrailing
-                                                    metrics:nil
-                                                      views:@{@"view": navigationController.view}]
-        ];
-        [NSLayoutConstraint activateConstraints:
-            [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[view]|"
-                                                    options:NSLayoutFormatDirectionLeadingToTrailing
-                                                    metrics:nil
-                                                      views:@{@"view": navigationController.view}]
-        ];
-        [navigationController didMoveToParentViewController:self];
-    }
-    return self;
-}
-
-@end
-
-
-#pragma mark - 全局函数
-
-/// 装包
-UIKIT_STATIC_INLINE XPContainerViewController* XPWrapViewController(UIViewController *vc)
-{
-    if ([vc isKindOfClass:XPContainerViewController.class]) {
-        return (XPContainerViewController*)vc;
-    }
-    return [XPContainerViewController containerViewControllerWithViewController:vc];
-}
-
-/// 解包
-UIKIT_STATIC_INLINE UIViewController* XPUnwrapViewController(UIViewController *vc)
-{
-    if ([vc isKindOfClass:XPContainerViewController.class]) {
-        return ((XPContainerViewController*)vc).contentViewController;
-    }
-    return vc;
-}
-
-/// 替换方法实现
-UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swizzledSelector) {
-    Method originalMethod = class_getInstanceMethod(class, originalSelector);
-    Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
-    if (class_addMethod(class, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))) {
-        class_replaceMethod(class, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
-    } else {
-        method_exchangeImplementations(originalMethod, swizzledMethod);
-    }
-}
-
-
-#pragma mark - 导航栏控制器
 
 @interface XPRootNavigationController ()<UIGestureRecognizerDelegate>
 @end
 
 @implementation XPRootNavigationController
 
-#pragma mark Lifecycle
+#pragma mark - Lifecycle
 
 - (instancetype)initWithRootViewController:(UIViewController *)rootViewController {
     self = [super initWithRootViewController:rootViewController];
@@ -123,54 +35,42 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
     [self commonInit];
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    XPContainerViewController *container = XPWrapViewController(viewController);
+    XPWrappingViewController *container = xp_wrappingViewController(viewController);
     if (self.viewControllers.count > 0) {
-        // 返回按钮目前仅支持图片
         UIImage *backImage = nil;
-        if (viewController.backIconImage) {
-            backImage = viewController.backIconImage;
-        } else if (container.containerNavigationController.backIconImage) {
-            backImage = container.containerNavigationController.backIconImage;
+        if (viewController.xp_backIconImage) {
+            backImage = viewController.xp_backIconImage;
+        } else if (container.contentViewController.xp_backIconImage) {
+            backImage = container.contentViewController.xp_backIconImage;
         } else {
-            backImage = self.backIconImage ?: [self navigationBarBackIconImage];
+            backImage = self.xp_backIconImage ?: [self navigationBarBackIconImage];
         }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-        UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithImage:backImage style:UIBarButtonItemStylePlain target:viewController action:@selector(xp_popViewController)];
+        UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithImage:backImage style:UIBarButtonItemStylePlain target:self action:@selector(backIconButtonAction:)];
 #pragma clang diagnostic pop
         viewController.navigationItem.leftBarButtonItem = backItem;
     }
     [super pushViewController:container animated:animated];
     
-    // pop手势
     self.interactivePopGestureRecognizer.delaysTouchesBegan = YES;
     self.interactivePopGestureRecognizer.delegate = self;
     self.interactivePopGestureRecognizer.enabled = YES;
     
     /**
-     * 保留一个`XPRootNavigationController`的弱引用
-     * 用于解决用户执行 pop 后立即 push 的使用场景
-     *
-     * 示例代码:
-     * UINavigationController *nav = self.navigationController;
-     * [nav popViewControllerAnimated:NO];
-     * [nav pushViewController:nil animated:YES];
+     Keep a weak reference to `XPRootNavigationController`
+     Used to solve the usage scenario of push immediately after the user executes pop
+     
+     Sample code:
+        UINavigationController *nav = self.navigationController;
+        [nav popViewControllerAnimated:NO];
+        [nav pushViewController:nil animated:YES];
      */
-    objc_setAssociatedObject(container.containerNavigationController, &kXPRootNavigationControllerKey, self, OBJC_ASSOCIATION_ASSIGN);
+    objc_setAssociatedObject(container.contentNavigationController, &kXPRootNavigationControllerKey, self, OBJC_ASSOCIATION_ASSIGN);
 }
 
-#pragma mark <UIGestureRecognizerDelegate>
+#pragma mark - <UIGestureRecognizerDelegate>
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer == self.interactivePopGestureRecognizer) {
@@ -183,24 +83,35 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
     return YES;
 }
 
-/// 在pop手势生效后能够确保滚动视图静止
+/// When the pop gesture takes effect, it can ensure that the scroll view is in a static state
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
     return (gestureRecognizer == self.interactivePopGestureRecognizer);
 }
 
-#pragma mark Private
+#pragma mark - Private
 
 - (void)commonInit {
-    // 注意: 需要先隐藏导航栏再设置控制器，否则在某些低版本系统下有问题
+    // Note: You need to hide the navigation bar before setting the controller, otherwise there will be problems in some low-version systems
     [self setNavigationBarHidden:YES animated:NO];
     UIViewController *topViewController = self.topViewController;
     if (topViewController) {
-        UIViewController *wrapViewController = XPWrapViewController(topViewController);
+        UIViewController *wrapViewController = xp_wrappingViewController(topViewController);
         [super setViewControllers:@[wrapViewController] animated:NO];
     }
 }
 
 - (UIImage *)navigationBarBackIconImage {
+    NSString *cacheDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+    NSString *filepath = [cacheDir stringByAppendingPathComponent:kBackIconCacheFileName];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    if ([fm fileExistsAtPath:filepath]) {
+        NSData *cacheData = [fm contentsAtPath:filepath];
+        UIImage *cacheImage = [UIImage imageWithData:cacheData scale:UIScreen.mainScreen.scale];
+        if (cacheImage) {
+            return [cacheImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+        }
+    }
+    
     CGSize const size = CGSizeMake(15.0, 21.0);
     UIGraphicsBeginImageContextWithOptions(size, NO, UIScreen.mainScreen.scale);
     
@@ -227,10 +138,20 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
     
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSData *imageData = UIImagePNGRepresentation(image);
+        [imageData writeToFile:filepath atomically:YES];
+    });
+    
     return image;
 }
 
-#pragma mark setter & getter
+- (void)backIconButtonAction:(UIBarButtonItem *)sender {
+    [self popViewControllerAnimated:YES];
+}
+
+#pragma mark - setter & getter
 
 - (void)setNavigationBarHidden:(BOOL)navigationBarHidden {
     [super setNavigationBarHidden:YES];
@@ -243,7 +164,7 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
 - (void)setViewControllers:(NSArray<UIViewController *> *)viewControllers animated:(BOOL)animated {
     NSMutableArray<UIViewController *> *aViewControllers = [NSMutableArray array];
     for (UIViewController *vc in viewControllers) {
-        [aViewControllers addObject:XPWrapViewController(vc)];
+        [aViewControllers addObject:xp_wrappingViewController(vc)];
     }
     [super setViewControllers:aViewControllers animated:animated];
 }
@@ -251,236 +172,79 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
 - (void)setViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers {
     NSMutableArray<UIViewController *> *aViewControllers = [NSMutableArray array];
     for (UIViewController *vc in viewControllers) {
-        [aViewControllers addObject:XPWrapViewController(vc)];
+        [aViewControllers addObject:xp_wrappingViewController(vc)];
     }
     [super setViewControllers:[NSArray arrayWithArray:aViewControllers]];
 }
 
 - (NSArray<UIViewController *> *)viewControllers {
-    // 返回真正的控制器给外界
     NSMutableArray<UIViewController *> *vcs = [NSMutableArray array];
     NSArray<UIViewController *> *viewControllers = [super viewControllers];
     for (UIViewController *vc in viewControllers) {
-        [vcs addObject:XPUnwrapViewController(vc)];
+        [vcs addObject:xp_unwrappingViewController(vc)];
     }
     return [NSArray arrayWithArray:vcs];
 }
 
-// Return modal view controller if it exists. Otherwise the top view controller.
 - (UIViewController *)visibleViewController {
     UIViewController *vc = [super visibleViewController];
-    if (vc == self.topViewController) {
-        return XPUnwrapViewController(vc);
-    }
-    return vc;
+    return xp_unwrappingViewController(vc);
 }
 
-@end
-
-
-#pragma mark -
-
-@implementation UIViewController (XPNavigationContainer)
-
-/// 通过返回不同的导航栏控制器可以给每个控制器定制不同的导航栏样式
-- (Class)xp_navigationControllerClass {
-#ifdef kXPNavigationControllerClassName
-    return NSClassFromString(kXPNavigationControllerClassName);
-#else
-    return [XPContainerNavigationController class];
-#endif
-}
-
-- (void)setBackIconImage:(UIImage *)backIconImage {
-    objc_setAssociatedObject(self, @selector(backIconImage), backIconImage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (UIImage *)backIconImage {
-    return objc_getAssociatedObject(self, _cmd);
-}
-
-- (XPRootNavigationController *)xp_rootNavigationController {
-    UIViewController *parentViewController = self.navigationController.parentViewController;
-    if (parentViewController && [parentViewController isKindOfClass:XPContainerViewController.class]) {
-        XPContainerViewController *container = (XPContainerViewController*)parentViewController;
-        return (XPRootNavigationController*)container.navigationController;
-    }
-    return nil;
-}
-
-- (void)xp_popViewController {
-    [self.navigationController popViewControllerAnimated:YES];
-}
-
-@end
-
-
-#pragma mark -
-
-@interface UINavigationController (XPNavigationContainer)
-@end
-
-@implementation UINavigationController (XPNavigationContainer)
-
-+ (void)load {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSArray *actions = @[
-                             NSStringFromSelector(@selector(pushViewController:animated:)),
-                             NSStringFromSelector(@selector(popViewControllerAnimated:)),
-                             NSStringFromSelector(@selector(popToViewController:animated:)),
-                             NSStringFromSelector(@selector(popToRootViewControllerAnimated:)),
-                             NSStringFromSelector(@selector(viewControllers)),
-                             NSStringFromSelector(@selector(tabBarController))
-                             ];
-        
-        for (NSString *str in actions) {
-            xp_swizzled(self, NSSelectorFromString(str), NSSelectorFromString([@"xp_" stringByAppendingString:str]));
-        }
-    });
-}
-
-#pragma mark Private
-
-- (XPRootNavigationController *)rootNavigationController {
-    if (self.parentViewController && [self.parentViewController isKindOfClass:XPContainerViewController.class]) {
-        XPContainerViewController *containerViewController = (XPContainerViewController *)self.parentViewController;
-        XPRootNavigationController *rootNavigationController = (XPRootNavigationController *)containerViewController.navigationController;
-        // 如果用户执行了pop操作, 则此时`rootNavigationController`将为nil
-        // 将尝试从关联对象中取出`XPRootNavigationController`
-        return (rootNavigationController ?: objc_getAssociatedObject(self, &kXPRootNavigationControllerKey));
-    }
-    return nil;
-}
-
-#pragma mark Override
-
-- (void)xp_pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    XPRootNavigationController *rootNavigationController = [self rootNavigationController];
-    if (rootNavigationController) {
-        return [rootNavigationController pushViewController:viewController animated:animated];
-    }
-    [self xp_pushViewController:viewController animated:animated];
-}
-
-- (UIViewController *)xp_popViewControllerAnimated:(BOOL)animated {
-    XPRootNavigationController *rootNavigationController = [self rootNavigationController];
-    if (rootNavigationController) {
-        XPContainerViewController *containerViewController = (XPContainerViewController*)[rootNavigationController popViewControllerAnimated:animated];
-        return containerViewController.contentViewController;
-    }
-    return [self xp_popViewControllerAnimated:animated];
-}
-
-- (NSArray<UIViewController *> *)xp_popToViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    XPRootNavigationController *rootNavigationController = [self rootNavigationController];
-    if (rootNavigationController) {
-        XPContainerViewController *container = (XPContainerViewController*)viewController.navigationController.parentViewController;
-        NSArray<UIViewController*> *array = [rootNavigationController popToViewController:container animated:animated];
-        NSMutableArray *viewControllers = [NSMutableArray array];
-        for (UIViewController *vc in array) {
-            [viewControllers addObject:XPUnwrapViewController(vc)];
-        }
-        return viewControllers;
-    }
-    return [self xp_popToViewController:viewController animated:animated];
-}
-
-- (NSArray<UIViewController *> *)xp_popToRootViewControllerAnimated:(BOOL)animated {
-    XPRootNavigationController *rootNavigationController = [self rootNavigationController];
-    if (rootNavigationController) {
-        NSArray<UIViewController*> *array = [rootNavigationController popToRootViewControllerAnimated:animated];
-        NSMutableArray *viewControllers = [NSMutableArray array];
-        for (UIViewController *vc in array) {
-            [viewControllers addObject:XPUnwrapViewController(vc)];
-        }
-        return viewControllers;
-    }
-    return [self xp_popToRootViewControllerAnimated:animated];
-}
-
-- (NSArray<UIViewController *> *)xp_viewControllers {
-    XPRootNavigationController *rootNavigationController = [self rootNavigationController];
-    if (rootNavigationController) {
-        return [rootNavigationController viewControllers];
-    }
-    return [self xp_viewControllers];
-}
-
-- (UITabBarController *)xp_tabBarController {
-    UITabBarController *tabController = [self xp_tabBarController];
-    if (self.parentViewController && [self.parentViewController isKindOfClass:XPContainerViewController.class]) {
-        if (self.viewControllers.count > 1 && self.topViewController.hidesBottomBarWhenPushed) {
-            // 解决滚动视图在iOS11以下版本中底部留白问题
-            return nil;
-        }
-        // Fix issue #4 https://github.com/xiaopin/NavigationContainer/issues/4
-        if (!tabController.tabBar.isTranslucent) {
-            return nil;
-        }
-    }
-    return tabController;
-}
-
-@end
-
-
-#pragma mark - 状态栏样式 & 屏幕旋转
-
-@implementation XPContainerNavigationController
+#pragma mark - Status bar style & screen rotation
 
 - (UIViewController *)childViewControllerForStatusBarStyle {
     if (self.topViewController) {
-        return XPUnwrapViewController(self.topViewController);
+        return xp_unwrappingViewController(self.topViewController);
     }
     return [super childViewControllerForStatusBarStyle];
 }
 
 - (UIViewController *)childViewControllerForStatusBarHidden {
     if (self.topViewController) {
-        return XPUnwrapViewController(self.topViewController);
+        return xp_unwrappingViewController(self.topViewController);
     }
     return [super childViewControllerForStatusBarHidden];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
     if (self.topViewController) {
-        return [XPUnwrapViewController(self.topViewController) preferredStatusBarStyle];
+        return [xp_unwrappingViewController(self.topViewController) preferredStatusBarStyle];
     }
     return [super preferredStatusBarStyle];
 }
 
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
     if (self.topViewController) {
-        return [XPUnwrapViewController(self.topViewController) preferredStatusBarUpdateAnimation];
+        return [xp_unwrappingViewController(self.topViewController) preferredStatusBarUpdateAnimation];
     }
     return [super preferredStatusBarUpdateAnimation];
 }
 
 - (BOOL)prefersStatusBarHidden {
     if (self.topViewController) {
-        return [XPUnwrapViewController(self.topViewController) prefersStatusBarHidden];
+        return [xp_unwrappingViewController(self.topViewController) prefersStatusBarHidden];
     }
     return [super prefersStatusBarHidden];
 }
 
 - (BOOL)shouldAutorotate {
     if (self.topViewController) {
-        return [XPUnwrapViewController(self.topViewController) shouldAutorotate];
+        return [xp_unwrappingViewController(self.topViewController) shouldAutorotate];
     }
     return [super shouldAutorotate];
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
     if (self.topViewController) {
-        return [XPUnwrapViewController(self.topViewController) preferredInterfaceOrientationForPresentation];
+        return [xp_unwrappingViewController(self.topViewController) preferredInterfaceOrientationForPresentation];
     }
     return [super preferredInterfaceOrientationForPresentation];
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     if (self.topViewController) {
-        return [XPUnwrapViewController(self.topViewController) supportedInterfaceOrientations];
+        return [xp_unwrappingViewController(self.topViewController) supportedInterfaceOrientations];
     }
     return [super supportedInterfaceOrientations];
 }
@@ -489,7 +253,7 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
 - (nullable UIViewController *)childViewControllerForScreenEdgesDeferringSystemGestures
 {
     if (self.topViewController) {
-        return XPUnwrapViewController(self.topViewController);
+        return xp_unwrappingViewController(self.topViewController);
     }
     return [super childViewControllerForScreenEdgesDeferringSystemGestures];
 }
@@ -497,7 +261,7 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
 - (UIRectEdge)preferredScreenEdgesDeferringSystemGestures
 {
     if (self.topViewController) {
-        return [XPUnwrapViewController(self.topViewController) preferredScreenEdgesDeferringSystemGestures];
+        return [xp_unwrappingViewController(self.topViewController) preferredScreenEdgesDeferringSystemGestures];
     }
     return [super preferredScreenEdgesDeferringSystemGestures];
 }
@@ -505,7 +269,7 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
 - (BOOL)prefersHomeIndicatorAutoHidden
 {
     if (self.topViewController) {
-        return [XPUnwrapViewController(self.topViewController) prefersHomeIndicatorAutoHidden];
+        return [xp_unwrappingViewController(self.topViewController) prefersHomeIndicatorAutoHidden];
     }
     return [super prefersHomeIndicatorAutoHidden];
 }
@@ -513,7 +277,7 @@ UIKIT_STATIC_INLINE void xp_swizzled(Class class, SEL originalSelector, SEL swiz
 - (UIViewController *)childViewControllerForHomeIndicatorAutoHidden
 {
     if (self.topViewController) {
-        return XPUnwrapViewController(self.topViewController);
+        return xp_unwrappingViewController(self.topViewController);
     }
     return [super childViewControllerForHomeIndicatorAutoHidden];
 }
