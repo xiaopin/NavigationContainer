@@ -30,19 +30,25 @@
     return self;
 }
 
-- (void)awakeFromNib {
-    [super awakeFromNib];
-    [self commonInit];
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self commonInit];
+    }
+    return self;
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    if (NO == viewController.hidesBottomBarWhenPushed && self.isViewControllerHidesBottomBarWhenPushed) {
+        viewController.hidesBottomBarWhenPushed = YES;
+    }
     XPWrappingViewController *container = xp_wrappingViewController(viewController);
     if (self.viewControllers.count > 0) {
         UIImage *backImage = nil;
         if (viewController.xp_backIconImage) {
             backImage = viewController.xp_backIconImage;
-        } else if (container.contentViewController.xp_backIconImage) {
-            backImage = container.contentViewController.xp_backIconImage;
+        } else if (container.contentNavigationController.xp_backIconImage) {
+            backImage = container.contentNavigationController.xp_backIconImage;
         } else {
             backImage = self.xp_backIconImage ?: [self navigationBarBackIconImage];
         }
@@ -91,6 +97,8 @@
 #pragma mark - Private
 
 - (void)commonInit {
+    self.childViewControllerIsNavigationController = NO;
+    self.viewControllerHidesBottomBarWhenPushed = YES;
     // Note: You need to hide the navigation bar before setting the controller, otherwise there will be problems in some low-version systems
     [self setNavigationBarHidden:YES animated:NO];
     UIViewController *topViewController = self.topViewController;
@@ -195,6 +203,9 @@
 
 - (UIViewController *)childViewControllerForStatusBarStyle {
     if (self.topViewController) {
+        if (self.isChildViewControllerIsNavigationController) {
+            return [(XPWrappingViewController *)self.topViewController contentNavigationController];
+        }
         return xp_unwrappingViewController(self.topViewController);
     }
     return [super childViewControllerForStatusBarStyle];
@@ -202,6 +213,9 @@
 
 - (UIViewController *)childViewControllerForStatusBarHidden {
     if (self.topViewController) {
+        if (self.isChildViewControllerIsNavigationController) {
+            return [(XPWrappingViewController *)self.topViewController contentNavigationController];
+        }
         return xp_unwrappingViewController(self.topViewController);
     }
     return [super childViewControllerForStatusBarHidden];
@@ -277,6 +291,9 @@
 - (UIViewController *)childViewControllerForHomeIndicatorAutoHidden
 {
     if (self.topViewController) {
+        if (self.isChildViewControllerIsNavigationController) {
+            return [(XPWrappingViewController *)self.topViewController contentNavigationController];
+        }
         return xp_unwrappingViewController(self.topViewController);
     }
     return [super childViewControllerForHomeIndicatorAutoHidden];
