@@ -29,7 +29,8 @@
         }
         
         Class cls = [viewController xp_navigationControllerClass];
-        NSAssert(![cls isKindOfClass:UINavigationController.class], @"`-xp_navigationControllerClass` must return UINavigationController or its subclasses.");
+        NSAssert(cls && [cls isSubclassOfClass:UINavigationController.class],
+                 @"`-xp_navigationControllerClass` must return UINavigationController or its subclasses.");
         cls = xp_createChildClass(cls);
         UINavigationController *navigationController = [[cls alloc] initWithRootViewController:viewController];
         navigationController.interactivePopGestureRecognizer.enabled = NO;

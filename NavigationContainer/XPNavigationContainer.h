@@ -28,5 +28,6 @@
 
 #import "UIViewController+XPNavigationContainer.h"
 #import "XPRootNavigationController.h"
+#import "XPGradientNavigationBar.h"
 
 #endif /* XPNavigationContainer_h */

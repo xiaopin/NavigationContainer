@@ -56,6 +56,13 @@
 #pragma clang diagnostic ignored "-Wundeclared-selector"
         UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithImage:backImage style:UIBarButtonItemStylePlain target:self action:@selector(backIconButtonAction:)];
 #pragma clang diagnostic pop
+        UIColor *iconColor = self.xp_backIconTintColor;
+        if (viewController.xp_backIconTintColor) {
+            iconColor = viewController.xp_backIconTintColor;
+        } else if (container.contentNavigationController.xp_backIconTintColor) {
+            iconColor = container.contentNavigationController.xp_backIconTintColor;
+        }
+        backItem.tintColor = iconColor;
         viewController.navigationItem.leftBarButtonItem = backItem;
     }
     [super pushViewController:container animated:animated];
@@ -116,7 +123,7 @@
         NSData *cacheData = [fm contentsAtPath:filepath];
         UIImage *cacheImage = [UIImage imageWithData:cacheData scale:UIScreen.mainScreen.scale];
         if (cacheImage) {
-            return [cacheImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+            return [cacheImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         }
     }
     
@@ -152,7 +159,7 @@
         [imageData writeToFile:filepath atomically:YES];
     });
     
-    return image;
+    return [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 }
 
 - (void)backIconButtonAction:(UIBarButtonItem *)sender {

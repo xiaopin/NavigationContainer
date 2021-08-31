@@ -9,9 +9,13 @@
 #import "UIViewController+XPNavigationContainer.h"
 #import "XPHelper+NavigationContainer.h"
 #import "XPRootNavigationController.h"
+#import "XPGradientNavigationBar.h"
+#import "XPGradientView.h"
 #import <objc/runtime.h>
 
 @implementation UIViewController (XPNavigationContainer)
+
+#pragma mark - Public
 
 /// By returning to different navigation bar controllers, you can customize different navigation bar styles for each controller
 - (Class)xp_navigationControllerClass {
@@ -22,6 +26,36 @@
 #endif
 }
 
+- (Class)xp_navigationBarClass {
+    return [XPGradientNavigationBar class];
+}
+
+- (void)xp_setNavigationBarWithGradientColors:(NSArray<UIColor *> *)colors {
+    UINavigationBar *navigationBar = nil;
+    if ([self isKindOfClass:UINavigationController.class]) {
+        navigationBar = [(UINavigationController *)self navigationBar];
+    } else {
+        navigationBar = self.navigationController.navigationBar;
+    }
+    if (NO == [navigationBar isKindOfClass:XPGradientNavigationBar.class]) return;
+    XPGradientView *gradientView = [(XPGradientNavigationBar *)navigationBar gradientView];
+    [gradientView setGradientWithColors:colors];
+}
+
+- (void)xp_setNavigationBarWithGradientColors:(NSArray<UIColor *> *)colors startPoint:(CGPoint)startPoint endPoint:(CGPoint)endPoint {
+    UINavigationBar *navigationBar = nil;
+    if ([self isKindOfClass:UINavigationController.class]) {
+        navigationBar = [(UINavigationController *)self navigationBar];
+    } else {
+        navigationBar = self.navigationController.navigationBar;
+    }
+    if (NO == [navigationBar isKindOfClass:XPGradientNavigationBar.class]) return;
+    XPGradientView *gradientView = [(XPGradientNavigationBar *)navigationBar gradientView];
+    [gradientView setGradientWithColors:colors startPoint:startPoint endPoint:endPoint];
+}
+
+#pragma mark - setter & getter
+ 
 - (void)setXp_backIconImage:(UIImage *)image {
     objc_setAssociatedObject(self, @selector(xp_backIconImage), image, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
@@ -30,12 +64,12 @@
     return objc_getAssociatedObject(self, _cmd);
 }
 
-- (void)setBackIconImage:(UIImage *)backIconImage {
-    [self setXp_backIconImage:backIconImage];
+- (void)setXp_backIconTintColor:(UIColor *)color {
+    objc_setAssociatedObject(self, @selector(xp_backIconTintColor), color, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (UIImage *)backIconImage {
-    return [self xp_backIconImage];
+- (UIColor *)xp_backIconTintColor {
+    return objc_getAssociatedObject(self, _cmd);
 }
 
 - (XPRootNavigationController *)xp_rootNavigationController {

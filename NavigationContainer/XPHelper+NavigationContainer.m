@@ -26,6 +26,38 @@ Class xpnc_class(id self, SEL _cmd) {
     return class_getSuperclass(object_getClass(self));
 }
 
+/// initWithRootViewController:
+id xpnc_initWithRootViewController(id self, SEL _cmd, UIViewController *rootViewController) {
+    struct objc_super super_struct = {
+        .receiver = self,
+        .super_class = class_getSuperclass(object_getClass(self)),
+    };
+    /**
+     Change the initialization method,
+     call the [self initWithNavigationBarClass:toolbarClass:] method to initialize.
+     */
+    Class navigationBarClass = [rootViewController xp_navigationBarClass];
+    id ret = ((id (*)(id, SEL, Class, Class))objc_msgSend)(self, @selector(initWithNavigationBarClass:toolbarClass:), navigationBarClass, nil);
+    if (ret && rootViewController) {
+        ((void (*)(void*, SEL, UIViewController*, BOOL))objc_msgSendSuper)(&super_struct, @selector(pushViewController:animated:), rootViewController, NO);
+    }
+    return ret;
+}
+
+/// initWithNavigationBarClass:toolbarClass:
+id xpnc_initWithNavigationBarClass_toolbarClass(id self, SEL _cmd, Class navigationBarClass, Class toolbarClass) {
+    struct objc_super super_struct = {
+        .receiver = self,
+        .super_class = class_getSuperclass(object_getClass(self)),
+    };
+    if (nil == navigationBarClass) {
+        navigationBarClass = [self xp_navigationBarClass];
+    }
+    NSAssert(nil == navigationBarClass || [navigationBarClass isSubclassOfClass:UINavigationBar.class],
+             @"`-xp_navigationBarClass` must return UINavigationBar or its subclasses.");
+    return ((id (*)(void*, SEL, Class, Class))objc_msgSendSuper)(&super_struct, _cmd, navigationBarClass, toolbarClass);
+}
+
 /// pushViewController:animated:
 void xpnc_pushViewController_animated(id self, SEL _cmd, UIViewController *viewController, BOOL animated) {
     if ([self isViewLoaded]) {
@@ -117,6 +149,8 @@ Class xp_createChildClass(Class parentClass) {
 
     // Override method implementation
     xpnc_add_method(childClass, @selector(class), (IMP)xpnc_class);
+    xpnc_add_method(childClass, @selector(initWithRootViewController:), (IMP)xpnc_initWithRootViewController);
+    xpnc_add_method(childClass, @selector(initWithNavigationBarClass:toolbarClass:), (IMP)xpnc_initWithNavigationBarClass_toolbarClass);
     xpnc_add_method(childClass, @selector(pushViewController:animated:), (IMP)xpnc_pushViewController_animated);
     xpnc_add_method(childClass, @selector(popViewControllerAnimated:), (IMP)xpnc_popViewControllerAnimated);
     xpnc_add_method(childClass, @selector(popToViewController:animated:), (IMP)xpnc_popToViewController_animated);

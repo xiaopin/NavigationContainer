@@ -18,6 +18,8 @@
 		B24E028D26DC815D00795455 /* XPWrappingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028426DC815D00795455 /* XPWrappingViewController.m */; };
 		B24E028E26DC815D00795455 /* XPHelper+NavigationContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028926DC815D00795455 /* XPHelper+NavigationContainer.m */; };
 		B24E028F26DC815D00795455 /* UIViewController+XPNavigationContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028B26DC815D00795455 /* UIViewController+XPNavigationContainer.m */; };
+		B24E029F26DCD18300795455 /* XPGradientNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E029E26DCD18300795455 /* XPGradientNavigationBar.m */; };
+		B24E02A326DCD2D000795455 /* XPGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E02A226DCD2D000795455 /* XPGradientView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +44,10 @@
 		B24E028926DC815D00795455 /* XPHelper+NavigationContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XPHelper+NavigationContainer.m"; sourceTree = "<group>"; };
 		B24E028A26DC815D00795455 /* XPNavigationContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPNavigationContainer.h; sourceTree = "<group>"; };
 		B24E028B26DC815D00795455 /* UIViewController+XPNavigationContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+XPNavigationContainer.m"; sourceTree = "<group>"; };
+		B24E029D26DCD18300795455 /* XPGradientNavigationBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XPGradientNavigationBar.h; sourceTree = "<group>"; };
+		B24E029E26DCD18300795455 /* XPGradientNavigationBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XPGradientNavigationBar.m; sourceTree = "<group>"; };
+		B24E02A126DCD2D000795455 /* XPGradientView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XPGradientView.h; sourceTree = "<group>"; };
+		B24E02A226DCD2D000795455 /* XPGradientView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XPGradientView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +99,7 @@
 		B24E028226DC815D00795455 /* NavigationContainer */ = {
 			isa = PBXGroup;
 			children = (
+				B24E02A026DCD28900795455 /* View */,
 				B24E028A26DC815D00795455 /* XPNavigationContainer.h */,
 				B24E028626DC815D00795455 /* UIViewController+XPNavigationContainer.h */,
 				B24E028B26DC815D00795455 /* UIViewController+XPNavigationContainer.m */,
@@ -105,6 +112,17 @@
 			);
 			path = NavigationContainer;
 			sourceTree = SOURCE_ROOT;
+		};
+		B24E02A026DCD28900795455 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B24E029D26DCD18300795455 /* XPGradientNavigationBar.h */,
+				B24E029E26DCD18300795455 /* XPGradientNavigationBar.m */,
+				B24E02A126DCD2D000795455 /* XPGradientView.h */,
+				B24E02A226DCD2D000795455 /* XPGradientView.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -176,14 +194,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B24E029F26DCD18300795455 /* XPGradientNavigationBar.m in Sources */,
 				546DFCEE2111DCED00491058 /* ViewController.m in Sources */,
+				B24E02A326DCD2D000795455 /* XPGradientView.m in Sources */,
 				546DFCF92111DCED00491058 /* main.m in Sources */,
 				546DFCEB2111DCED00491058 /* AppDelegate.m in Sources */,
 				546DFD052111DE0600491058 /* TableViewController.m in Sources */,
 				B24E028D26DC815D00795455 /* XPWrappingViewController.m in Sources */,
 				B24E028C26DC815D00795455 /* XPRootNavigationController.m in Sources */,
-				B24E028F26DC815D00795455 /* UIViewController+XPNavigationContainer.m in Sources */,
 				B24E028E26DC815D00795455 /* XPHelper+NavigationContainer.m in Sources */,
+				B24E028F26DC815D00795455 /* UIViewController+XPNavigationContainer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

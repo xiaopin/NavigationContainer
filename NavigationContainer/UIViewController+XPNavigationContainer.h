@@ -12,9 +12,10 @@
 
 @interface UIViewController (XPNavigationContainer)
 
-// Navigation bar back button icon, default nil.
+/// Navigation bar back button icon, default nil.
 @property (nonatomic, strong) IBInspectable UIImage *xp_backIconImage;
-@property (nonatomic, strong) UIImage *backIconImage __attribute__((deprecated("This property is deprecated, please use xp_backIconImage")));
+/// Color of the goback icon, default nil.
+@property (nonatomic, strong) IBInspectable UIColor *xp_backIconTintColor;
 
 /**
  Return the navigation bar controller of the controller, default [UINavigationController class]
@@ -27,7 +28,24 @@
  */
 - (Class)xp_navigationControllerClass;
 
+/**
+ Return to the custom navigation bar class, the default [XPGradientNavigationBar class]
+ 
+ @return Navigation bar class, must be `UINavigationBar` or its subclass
+ */
+- (Class)xp_navigationBarClass;
+
 /// Default is `nil`
 - (XPRootNavigationController *)xp_rootNavigationController;
+
+/// Set the gradient color of the navigation bar
+/// @param colors       Gradient colors
+- (void)xp_setNavigationBarWithGradientColors:(NSArray<UIColor *> *)colors;
+
+/// Set the gradient color and position of the navigation bar
+/// @param colors       Gradient colors
+/// @param startPoint   Start gradient position
+/// @param endPoint     End gradient position
+- (void)xp_setNavigationBarWithGradientColors:(NSArray<UIColor *> *)colors startPoint:(CGPoint)startPoint endPoint:(CGPoint)endPoint;
 
 @end
