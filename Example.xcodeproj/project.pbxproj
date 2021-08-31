@@ -14,6 +14,9 @@
 		546DFCF62111DCED00491058 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 546DFCF42111DCED00491058 /* LaunchScreen.storyboard */; };
 		546DFCF92111DCED00491058 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 546DFCF82111DCED00491058 /* main.m */; };
 		546DFD052111DE0600491058 /* TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 546DFD042111DE0600491058 /* TableViewController.m */; };
+		B2088B3926DE3749004930B0 /* NavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = B2088B3826DE3749004930B0 /* NavigationBar.m */; };
+		B2088B3C26DE3772004930B0 /* WhiteNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2088B3B26DE3772004930B0 /* WhiteNavigationController.m */; };
+		B20A129E26DDDC6000ED678B /* GradientNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = B20A129D26DDDC6000ED678B /* GradientNavigationController.m */; };
 		B24E028C26DC815D00795455 /* XPRootNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028326DC815D00795455 /* XPRootNavigationController.m */; };
 		B24E028D26DC815D00795455 /* XPWrappingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028426DC815D00795455 /* XPWrappingViewController.m */; };
 		B24E028E26DC815D00795455 /* XPHelper+NavigationContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = B24E028926DC815D00795455 /* XPHelper+NavigationContainer.m */; };
@@ -35,6 +38,12 @@
 		546DFCF82111DCED00491058 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		546DFD032111DE0600491058 /* TableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableViewController.h; sourceTree = "<group>"; };
 		546DFD042111DE0600491058 /* TableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableViewController.m; sourceTree = "<group>"; };
+		B2088B3726DE3749004930B0 /* NavigationBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NavigationBar.h; sourceTree = "<group>"; };
+		B2088B3826DE3749004930B0 /* NavigationBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NavigationBar.m; sourceTree = "<group>"; };
+		B2088B3A26DE3772004930B0 /* WhiteNavigationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WhiteNavigationController.h; sourceTree = "<group>"; };
+		B2088B3B26DE3772004930B0 /* WhiteNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WhiteNavigationController.m; sourceTree = "<group>"; };
+		B20A129C26DDDC6000ED678B /* GradientNavigationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GradientNavigationController.h; sourceTree = "<group>"; };
+		B20A129D26DDDC6000ED678B /* GradientNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GradientNavigationController.m; sourceTree = "<group>"; };
 		B24E028326DC815D00795455 /* XPRootNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XPRootNavigationController.m; sourceTree = "<group>"; };
 		B24E028426DC815D00795455 /* XPWrappingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XPWrappingViewController.m; sourceTree = "<group>"; };
 		B24E028526DC815D00795455 /* XPHelper+NavigationContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XPHelper+NavigationContainer.h"; sourceTree = "<group>"; };
@@ -81,12 +90,10 @@
 			isa = PBXGroup;
 			children = (
 				B24E028226DC815D00795455 /* NavigationContainer */,
+				B20A129F26DDDC6500ED678B /* Controller */,
+				B2088B3626DE372A004930B0 /* View */,
 				546DFCE92111DCED00491058 /* AppDelegate.h */,
 				546DFCEA2111DCED00491058 /* AppDelegate.m */,
-				546DFCEC2111DCED00491058 /* ViewController.h */,
-				546DFCED2111DCED00491058 /* ViewController.m */,
-				546DFD032111DE0600491058 /* TableViewController.h */,
-				546DFD042111DE0600491058 /* TableViewController.m */,
 				546DFCEF2111DCED00491058 /* Main.storyboard */,
 				546DFCF22111DCED00491058 /* Assets.xcassets */,
 				546DFCF42111DCED00491058 /* LaunchScreen.storyboard */,
@@ -94,6 +101,30 @@
 				546DFCF82111DCED00491058 /* main.m */,
 			);
 			path = Example;
+			sourceTree = "<group>";
+		};
+		B2088B3626DE372A004930B0 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B2088B3726DE3749004930B0 /* NavigationBar.h */,
+				B2088B3826DE3749004930B0 /* NavigationBar.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		B20A129F26DDDC6500ED678B /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				546DFCEC2111DCED00491058 /* ViewController.h */,
+				546DFCED2111DCED00491058 /* ViewController.m */,
+				546DFD032111DE0600491058 /* TableViewController.h */,
+				546DFD042111DE0600491058 /* TableViewController.m */,
+				B20A129C26DDDC6000ED678B /* GradientNavigationController.h */,
+				B20A129D26DDDC6000ED678B /* GradientNavigationController.m */,
+				B2088B3A26DE3772004930B0 /* WhiteNavigationController.h */,
+				B2088B3B26DE3772004930B0 /* WhiteNavigationController.m */,
+			);
+			path = Controller;
 			sourceTree = "<group>";
 		};
 		B24E028226DC815D00795455 /* NavigationContainer */ = {
@@ -194,12 +225,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B20A129E26DDDC6000ED678B /* GradientNavigationController.m in Sources */,
 				B24E029F26DCD18300795455 /* XPGradientNavigationBar.m in Sources */,
 				546DFCEE2111DCED00491058 /* ViewController.m in Sources */,
+				B2088B3C26DE3772004930B0 /* WhiteNavigationController.m in Sources */,
 				B24E02A326DCD2D000795455 /* XPGradientView.m in Sources */,
 				546DFCF92111DCED00491058 /* main.m in Sources */,
 				546DFCEB2111DCED00491058 /* AppDelegate.m in Sources */,
 				546DFD052111DE0600491058 /* TableViewController.m in Sources */,
+				B2088B3926DE3749004930B0 /* NavigationBar.m in Sources */,
 				B24E028D26DC815D00795455 /* XPWrappingViewController.m in Sources */,
 				B24E028C26DC815D00795455 /* XPRootNavigationController.m in Sources */,
 				B24E028E26DC815D00795455 /* XPHelper+NavigationContainer.m in Sources */,
@@ -344,6 +378,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "kXPNavigationControllerClassName='@\"GradientNavigationController\"'";
 				INFOPLIST_FILE = Example/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -360,6 +396,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "kXPNavigationControllerClassName='@\"GradientNavigationController\"'";
 				INFOPLIST_FILE = Example/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

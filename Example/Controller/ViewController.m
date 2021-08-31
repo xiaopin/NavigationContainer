@@ -7,6 +7,8 @@
 //
 
 #import "ViewController.h"
+#import "XPNavigationContainer.h"
+#import "WhiteNavigationController.h"
 
 @interface ViewController ()
 
@@ -38,6 +40,15 @@
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
     return UIStatusBarStyleLightContent;
+}
+
+- (Class)xp_navigationControllerClass {
+    // 单独配置导航栏
+    return [WhiteNavigationController class];
+}
+
+- (UIColor *)xp_backIconTintColor {
+    return [UIColor orangeColor];
 }
 
 @end

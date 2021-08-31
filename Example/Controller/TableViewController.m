@@ -17,13 +17,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    UIColor *color = [UIColor colorWithRed:arc4random_uniform(256)/255.0
-                                     green:arc4random_uniform(256)/255.0
-                                      blue:arc4random_uniform(256)/255.0
-                                     alpha:1.0];
     NSString *title = [NSString stringWithFormat:@"%u", arc4random()];
-    
-    self.navigationController.navigationBar.barTintColor = color;
     if (arc4random()%2) {
         self.title = title;
     } else {
