@@ -84,4 +84,33 @@
     return nil;
 }
 
+- (void)xp_setNavigationBarAlpha:(CGFloat)alpha {
+    UINavigationBar *navigationBar = nil;
+    if ([self isKindOfClass:UINavigationController.class]) {
+        navigationBar = [(UINavigationController *)self navigationBar];
+    } else {
+        navigationBar = self.navigationController.navigationBar;
+    }
+    UIView *barBackgroundView = navigationBar.subviews.firstObject;
+    if (@available(iOS 13.0, *)) {
+        barBackgroundView.alpha = alpha;
+        return;
+    }
+    // Whether to hide the bottom dividing line
+    UIView *shadowView = [barBackgroundView valueForKey:@"_shadowView"];
+    shadowView.hidden = (alpha < 1.0);
+    // Background transparency
+    if (navigationBar.isTranslucent) {
+        if (@available(iOS 10.0, *)) {
+            UIView *backgroundEffectView = [barBackgroundView valueForKey:@"_backgroundEffectView"];
+            backgroundEffectView.alpha = alpha;
+        } else {
+            UIView *adaptiveBackdrop = [barBackgroundView valueForKey:@"_adaptiveBackdrop"];
+            adaptiveBackdrop.alpha = alpha;
+        }
+    } else {
+        barBackgroundView.alpha = alpha;
+    }
+}
+
 @end

@@ -136,6 +136,8 @@ kXPNavigationControllerClassName='@"YouCustomNavigationController"'
 
 - 支持导航栏渐变色功能
 
+- 支持设置导航栏透明度（透明时导航栏的触摸事件无法穿透）
+
 ## TODO
 
 - 测试其他场景下的使用效果

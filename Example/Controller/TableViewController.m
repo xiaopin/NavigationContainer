@@ -7,8 +7,11 @@
 //
 
 #import "TableViewController.h"
+#import "XPNavigationContainer.h"
 
 @interface TableViewController ()
+
+@property (nonatomic, assign, getter=isEnabledAlpha) BOOL enabledAlpha;
 
 @end
 
@@ -26,6 +29,12 @@
         label.backgroundColor = [UIColor brownColor];
         self.navigationItem.titleView = label;
     }
+    
+    if (self.navigationController.viewControllers.count % 2 == 0) {
+        [self xp_setNavigationBarAlpha:0.0];
+        [self setEnabledAlpha:YES];
+        [self.tableView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    }
 }
 
 - (void)dealloc {
@@ -40,7 +49,7 @@
 #pragma mark - <UITableViewDataSource>
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return 4;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -61,6 +70,14 @@
     
     TableViewController *tableVC = (TableViewController*)[self.storyboard instantiateViewControllerWithIdentifier:NSStringFromClass(self.class)];
     [self.navigationController pushViewController:tableVC animated:YES];
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (NO == self.isEnabledAlpha) return;
+    CGFloat maxOffset = 300.0;
+    CGFloat verticalOffset = MIN(MAX(scrollView.contentOffset.y, 0.0), maxOffset);
+    CGFloat alpha = verticalOffset / maxOffset;
+    [self xp_setNavigationBarAlpha:alpha];
 }
 
 @end

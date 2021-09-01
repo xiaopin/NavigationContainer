@@ -48,4 +48,8 @@
 /// @param endPoint     End gradient position
 - (void)xp_setNavigationBarWithGradientColors:(NSArray<UIColor *> *)colors startPoint:(CGPoint)startPoint endPoint:(CGPoint)endPoint;
 
+/// Set the transparency of the navigation bar
+/// @param alpha 0.0~1.0
+- (void)xp_setNavigationBarAlpha:(CGFloat)alpha;
+
 @end
