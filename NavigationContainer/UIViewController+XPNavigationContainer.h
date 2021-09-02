@@ -49,7 +49,12 @@
 - (void)xp_setNavigationBarWithGradientColors:(NSArray<UIColor *> *)colors startPoint:(CGPoint)startPoint endPoint:(CGPoint)endPoint;
 
 /// Set the transparency of the navigation bar
-/// @param alpha 0.0~1.0
+/// @param alpha Transparency(0.0~1.0)
 - (void)xp_setNavigationBarAlpha:(CGFloat)alpha;
+
+/// Set the transparency of the navigation bar
+/// @param alpha Transparency(0.0~1.0)
+/// @param isPenetration When the navigation bar is transparent, whether the event is allowed to penetrate
+- (void)xp_setNavigationBarAlpha:(CGFloat)alpha eventPenetrationWhenTransparent:(BOOL)isPenetration;
 
 @end

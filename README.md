@@ -136,7 +136,12 @@ kXPNavigationControllerClassName='@"YouCustomNavigationController"'
 
 - 支持导航栏渐变色功能
 
-- 支持设置导航栏透明度（透明时导航栏的触摸事件无法穿透）
+- 支持设置导航栏透明度
+
+- 支持当导航栏透明时，触摸事件穿透
+  - 当你通过 `[self xp_setNavigationBarAlpha:0.0]` 设置透明度时，默认为你启用事件穿透功能
+  - 如果你想禁用事件穿透，请通过 `[self xp_setNavigationBarAlpha:0.0 eventPenetrationWhenTransparent:NO]` 来设置透明度
+  - 事件穿透功能仅限于 `XPGradientNavigationBar` 这个类，如果你使用了其他导航栏则默认没有该功能（后续我应该也不会适配）
 
 ## TODO
 

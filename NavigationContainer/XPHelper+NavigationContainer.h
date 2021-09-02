@@ -11,6 +11,8 @@
 @class XPWrappingViewController;
 
 UIKIT_EXTERN const char kXPRootNavigationControllerKey;
+UIKIT_EXTERN const char kXPNavigationBarEventPenetrateKey;
+UIKIT_EXTERN const char kXPNavigationBarTransparencyKey;
 
 /// Create subclass
 /// @param parentClass The parent class

@@ -11,7 +11,9 @@
 #import "UIViewController+XPNavigationContainer.h"
 #import <objc/message.h>
 
-char const kXPRootNavigationControllerKey = '\0';
+char const kXPRootNavigationControllerKey       = '\0';
+const char kXPNavigationBarEventPenetrateKey    = '\0';
+const char kXPNavigationBarTransparencyKey      = '\0';
 
 #pragma mark - Override
 

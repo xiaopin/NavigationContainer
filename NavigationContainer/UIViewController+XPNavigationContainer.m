@@ -85,12 +85,26 @@
 }
 
 - (void)xp_setNavigationBarAlpha:(CGFloat)alpha {
+    [self xp_setNavigationBarAlpha:alpha eventPenetrationWhenTransparent:YES];
+}
+
+- (void)xp_setNavigationBarAlpha:(CGFloat)alpha eventPenetrationWhenTransparent:(BOOL)isPenetration {
     UINavigationBar *navigationBar = nil;
     if ([self isKindOfClass:UINavigationController.class]) {
         navigationBar = [(UINavigationController *)self navigationBar];
     } else {
         navigationBar = self.navigationController.navigationBar;
     }
+    if (nil == navigationBar) return;
+    objc_setAssociatedObject(navigationBar,
+                             &kXPNavigationBarEventPenetrateKey,
+                             @(isPenetration),
+                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(navigationBar,
+                             &kXPNavigationBarTransparencyKey,
+                             @(alpha),
+                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    
     UIView *barBackgroundView = navigationBar.subviews.firstObject;
     if (@available(iOS 13.0, *)) {
         barBackgroundView.alpha = alpha;

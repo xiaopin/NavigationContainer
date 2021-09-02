@@ -8,6 +8,8 @@
 
 #import "XPGradientNavigationBar.h"
 #import "XPGradientView.h"
+#import "XPHelper+NavigationContainer.h"
+#import <objc/runtime.h>
 
 @implementation XPGradientNavigationBar
 
@@ -47,6 +49,33 @@
 
 - (void)setTranslucent:(BOOL)translucent {
     [super setTranslucent:YES];
+}
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView *view = [super hitTest:point withEvent:event];
+    BOOL isNeedForward = (view && view.nextResponder && [view.nextResponder isKindOfClass:UINavigationBar.class]);
+    if (NO == isNeedForward) return view;
+    /**
+     When event penetration is enabled and the transparency is less than or equal to 0.1,
+     the event is forwarded to the current view controller
+     */
+    BOOL isEventPenetration = [objc_getAssociatedObject(self, &kXPNavigationBarEventPenetrateKey) boolValue];
+    CGFloat alpha = [objc_getAssociatedObject(self, &kXPNavigationBarTransparencyKey) floatValue];
+    if (isEventPenetration && alpha <= 0.1) {
+        UINavigationController *nav = nil;
+        UIResponder *responder = view.nextResponder;
+        while (responder) {
+            if ([responder isKindOfClass:UINavigationController.class]) {
+                nav = (UINavigationController *)responder;
+                break;
+            }
+            responder = responder.nextResponder;
+        }
+        if (nav && nav.topViewController) {
+            view = nav.topViewController.view;
+        }
+    }
+    return view;
 }
 
 #pragma mark - Private
