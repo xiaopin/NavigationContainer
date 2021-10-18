@@ -83,6 +83,46 @@
     objc_setAssociatedObject(container.contentNavigationController, &kXPRootNavigationControllerKey, self, OBJC_ASSOCIATION_ASSIGN);
 }
 
+- (NSArray<__kindof UIViewController *> *)popToRootViewControllerAnimated:(BOOL)animated {
+    NSArray<UIViewController *> *viewControllers = [super popToRootViewControllerAnimated:animated];
+    NSMutableArray<UIViewController *> *ret = [NSMutableArray arrayWithCapacity:viewControllers.count];
+    for (int i = 0; i < viewControllers.count; i++) {
+        UIViewController *vc = xp_unwrappingViewController(viewControllers[i]);
+        [ret addObject:vc];
+    }
+    return ret;
+}
+
+- (UIViewController *)popViewControllerAnimated:(BOOL)animated {
+    UIViewController *vc = [super popViewControllerAnimated:animated];
+    return xp_unwrappingViewController(vc);
+}
+
+- (NSArray<__kindof UIViewController *> *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    UIViewController *vc = nil;
+    if ([viewController isKindOfClass:XPWrappingViewController.class]) {
+        vc = viewController;
+    } else {
+        NSArray<XPWrappingViewController *> *viewControllers = [super viewControllers];
+        for (XPWrappingViewController *tmpVC in viewControllers) {
+            if ([tmpVC isKindOfClass:XPWrappingViewController.class] &&
+                tmpVC.contentViewController == viewController)
+            {
+                vc = tmpVC;
+                break;
+            }
+        }
+    }
+    if (!vc) return nil;
+    NSArray<UIViewController *> *array = [super popToViewController:vc animated:animated];
+    NSMutableArray *ret = [NSMutableArray arrayWithCapacity:array.count];
+    for (int i = 0; i < array.count; i++) {
+        UIViewController *contentViewController = xp_unwrappingViewController(array[i]);
+        [ret addObject:contentViewController];
+    }
+    return ret;
+}
+
 #pragma mark - <UIGestureRecognizerDelegate>
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
