@@ -73,6 +73,9 @@
         }
         if (nav && nav.topViewController) {
             view = nav.topViewController.view;
+            point.y += self.frame.origin.y;
+            UIView *hitView = [view hitTest:point withEvent:event];
+            if (hitView) view = hitView;
         }
     }
     return view;
