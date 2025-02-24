@@ -38,6 +38,14 @@
     return self;
 }
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    if (@available(iOS 18.0, *)) {
+        // Hide the navigation bar of the wrapper
+        [self setNavigationBarHidden:YES animated:NO];
+    }
+}
+
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
     if (NO == viewController.hidesBottomBarWhenPushed && self.isViewControllerHidesBottomBarWhenPushed) {
         viewController.hidesBottomBarWhenPushed = YES;
@@ -146,8 +154,12 @@
 - (void)commonInit {
     self.childViewControllerIsNavigationController = NO;
     self.viewControllerHidesBottomBarWhenPushed = YES;
-    // Note: You need to hide the navigation bar before setting the controller, otherwise there will be problems in some low-version systems
-    [self setNavigationBarHidden:YES animated:NO];
+    if (@available(iOS 18.0, *)) {
+        // Call `setNavigationBarHidden:animated:` in the viewDidLoad method. Otherwise, the app will crash.
+    } else {
+        // Note: You need to hide the navigation bar before setting the controller, otherwise there will be problems in some low-version systems
+        [self setNavigationBarHidden:YES animated:NO];
+    }
     UIViewController *topViewController = self.topViewController;
     if (topViewController) {
         UIViewController *wrapViewController = xp_wrappingViewController(topViewController);
